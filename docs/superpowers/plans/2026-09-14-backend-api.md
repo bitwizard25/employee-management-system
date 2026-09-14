@@ -1166,7 +1166,7 @@ git commit -m "feat: add Google OAuth login issuing JWT access and refresh token
 - Consumes: `JWT_ACCESS_SECRET`/`JWT_REFRESH_SECRET` (Task 1), `User` model (Task 2).
 - Produces: `JwtAuthGuard` (used by every protected controller from Task 9 onward), `@CurrentUser()` decorator returning `{ userId: string; role: 'employee' | 'admin' }` from the validated JWT payload, `AuthService.refresh(refreshToken: string): Promise<{ accessToken: string }>`.
 
-- [ ] **Step 1: Write the failing refresh test**
+- [x] **Step 1: Write the failing refresh test**
 
 Append to `backend/src/auth/auth.service.spec.ts`, inside the existing `describe('AuthService', ...)` block:
 ```typescript
@@ -1208,12 +1208,12 @@ Append to `backend/src/auth/auth.service.spec.ts`, inside the existing `describe
   });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- auth.service.spec.ts`
 Expected: FAIL — `refreshableService.refresh is not a function`.
 
-- [ ] **Step 3: Implement `refresh` on `AuthService`**
+- [x] **Step 3: Implement `refresh` on `AuthService`**
 
 Add to `backend/src/auth/auth.service.ts`, inside the `AuthService` class:
 ```typescript
@@ -1243,12 +1243,12 @@ Add to `backend/src/auth/auth.service.ts`, inside the `AuthService` class:
   }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- auth.service.spec.ts`
 Expected: PASS (all tests)
 
-- [ ] **Step 5: Add the refresh DTO and controller route**
+- [x] **Step 5: Add the refresh DTO and controller route**
 
 Create `backend/src/auth/dto/refresh.dto.ts`:
 ```typescript
@@ -1270,7 +1270,7 @@ Add to `backend/src/auth/auth.controller.ts`:
 ```
 (with the corresponding `import { RefreshDto } from './dto/refresh.dto';` added at the top.)
 
-- [ ] **Step 6: Implement the JWT strategy and guard**
+- [x] **Step 6: Implement the JWT strategy and guard**
 
 Create `backend/src/auth/jwt.strategy.ts`:
 ```typescript
@@ -1322,7 +1322,7 @@ export const CurrentUser = createParamDecorator(
 );
 ```
 
-- [ ] **Step 7: Register PassportModule and JwtStrategy in AuthModule**
+- [x] **Step 7: Register PassportModule and JwtStrategy in AuthModule**
 
 Modify `backend/src/auth/auth.module.ts` — add `PassportModule` to `imports` and `JwtStrategy` to `providers`:
 ```typescript
@@ -1338,12 +1338,12 @@ import { JwtStrategy } from './jwt.strategy';
 export class AuthModule {}
 ```
 
-- [ ] **Step 8: Run the full test suite**
+- [x] **Step 8: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add backend/
