@@ -81,4 +81,58 @@ export class AttendanceService {
     ]);
     return { items, total, page, limit };
   }
+
+  async findAllAdmin(
+    filters: { userId?: string; officeId?: string; from?: Date; to?: Date },
+    page: number,
+    limit: number,
+  ) {
+    const filter: Record<string, unknown> = {};
+    if (filters.userId) filter.userId = filters.userId;
+    if (filters.officeId) filter.officeId = filters.officeId;
+    if (filters.from || filters.to) {
+      filter['clockIn.time'] = {
+        ...(filters.from && { $gte: filters.from }),
+        ...(filters.to && { $lte: filters.to }),
+      };
+    }
+    const [items, total] = await Promise.all([
+      this.attendanceModel
+        .find(filter)
+        .sort({ 'clockIn.time': -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+      this.attendanceModel.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
+  }
+
+  summary(from: Date, to: Date): Promise<{ userId: string; totalHours: number }[]> {
+    return this.attendanceModel.aggregate([
+      {
+        $match: {
+          status: 'closed',
+          'clockIn.time': { $gte: from, $lte: to },
+        },
+      },
+      {
+        $project: {
+          userId: 1,
+          hours: {
+            $divide: [{ $subtract: ['$clockOut.time', '$clockIn.time'] }, 1000 * 60 * 60],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$userId',
+          totalHours: { $sum: '$hours' },
+        },
+      },
+      {
+        $project: { _id: 0, userId: '$_id', totalHours: 1 },
+      },
+    ]);
+  }
 }

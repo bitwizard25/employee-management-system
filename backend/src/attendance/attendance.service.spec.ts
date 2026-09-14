@@ -99,3 +99,61 @@ describe('AttendanceService.clockOut', () => {
     expect(result.status).toBe('closed');
   });
 });
+
+describe('AttendanceService.summary', () => {
+  let service: AttendanceService;
+  let model: any;
+
+  beforeEach(async () => {
+    model = { aggregate: vi.fn() };
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        AttendanceService,
+        { provide: getModelToken(AttendanceRecord.name), useValue: model },
+        { provide: OfficesService, useValue: { findOne: vi.fn() } },
+      ],
+    }).compile();
+    service = moduleRef.get(AttendanceService);
+  });
+
+  it('runs an aggregation pipeline and returns total hours per user', async () => {
+    model.aggregate.mockResolvedValue([
+      { userId: 'u1', totalHours: 37.5 },
+      { userId: 'u2', totalHours: 40 },
+    ]);
+
+    const from = new Date('2026-09-01');
+    const to = new Date('2026-09-07');
+    const result = await service.summary(from, to);
+
+    expect(model.aggregate).toHaveBeenCalledWith([
+      {
+        $match: {
+          status: 'closed',
+          'clockIn.time': { $gte: from, $lte: to },
+        },
+      },
+      {
+        $project: {
+          userId: 1,
+          hours: {
+            $divide: [{ $subtract: ['$clockOut.time', '$clockIn.time'] }, 1000 * 60 * 60],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$userId',
+          totalHours: { $sum: '$hours' },
+        },
+      },
+      {
+        $project: { _id: 0, userId: '$_id', totalHours: 1 },
+      },
+    ]);
+    expect(result).toEqual([
+      { userId: 'u1', totalHours: 37.5 },
+      { userId: 'u2', totalHours: 40 },
+    ]);
+  });
+});
