@@ -1365,7 +1365,7 @@ git commit -m "feat: add JWT refresh endpoint, JwtAuthGuard, and CurrentUser dec
 - Consumes: `JwtPayload` (Task 7, via `request.user.role`), `User` model (Task 2).
 - Produces: `@Roles('admin')` decorator + `RolesGuard`, applied together with `JwtAuthGuard` on every admin-only route from Task 9 onward.
 
-- [ ] **Step 1: Write the failing guard test**
+- [x] **Step 1: Write the failing guard test**
 
 Create `backend/src/common/guards/roles.guard.spec.ts`:
 ```typescript
@@ -1402,12 +1402,12 @@ describe('RolesGuard', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- roles.guard.spec.ts`
 Expected: FAIL — cannot find module `./roles.guard`.
 
-- [ ] **Step 3: Implement the decorator and guard**
+- [x] **Step 3: Implement the decorator and guard**
 
 Create `backend/src/common/decorators/roles.decorator.ts`:
 ```typescript
@@ -1441,12 +1441,12 @@ export class RolesGuard implements CanActivate {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- roles.guard.spec.ts`
 Expected: PASS (all three tests)
 
-- [ ] **Step 5: Write the admin bootstrap seed script**
+- [x] **Step 5: Write the admin bootstrap seed script**
 
 Create `backend/scripts/seed-admins.ts`:
 ```typescript
@@ -1492,7 +1492,7 @@ Add to `backend/package.json` `scripts`:
 ```
 (`ts-node` is already a transitive dev dependency of the Nest CLI scaffold; if `npm run seed:admins` fails with "ts-node not found", run `npm install -D ts-node`.)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add backend/
