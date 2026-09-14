@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { validateEnv } from './config/env.validation';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { validateEnv } from './config/env.validation';
         uri: config.get<string>('MONGO_URI'),
       }),
     }),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
 })
