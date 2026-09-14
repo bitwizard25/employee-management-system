@@ -61,6 +61,24 @@ otherwise unchanged:
   the model and before any assertions — otherwise the index may not
   exist yet when the test writes to it. Apply this in every schema spec
   (Tasks 2-5).
+- When a service chains `.exec()` onto a Mongoose query method (e.g.
+  `this.model.findByIdAndUpdate(id, dto, opts).exec()`), the corresponding
+  unit-test mock must return a chainable object, not resolve directly:
+  `model.findByIdAndUpdate.mockReturnValue({ exec: vi.fn().mockResolvedValue(x) })`,
+  not `model.findByIdAndUpdate.mockResolvedValue(x)` (the latter makes
+  `.exec()` get called on a Promise and throws "not a function"). Applies
+  anywhere a plan test mocks `findByIdAndUpdate`, `findOneAndUpdate`,
+  `findByIdAndDelete`, etc. (Tasks 9-15).
+- `JwtAuthGuard`/`RolesGuard` need Passport internals (`AuthModuleOptions`)
+  that only exist where `PassportModule.register(...)` ran. A feature
+  module (e.g. `UsersModule`) using these guards in its own controller,
+  without importing that setup, fails to boot with "Nest can't resolve
+  dependencies of the JwtAuthGuard ... AuthModuleOptions". Fixed once, for
+  every later module (Tasks 10-15): `AuthModule` is `@Global()`,
+  registers `PassportModule.register({ defaultStrategy: 'jwt' })` (not
+  the bare `PassportModule`), and exports it — so no other module needs
+  to import `PassportModule` itself, only `AuthModule` needs to be
+  imported once (already done, in `AppModule`).
 - `@nestjs/mongoose`'s `@Prop()` decorator cannot infer a Mongoose type
   from a TypeScript union/string-literal type (e.g. `role: 'employee' |
   'admin'`) — it needs an explicit `type: String` alongside `enum`, or it
@@ -1516,7 +1534,7 @@ git commit -m "feat: add RolesGuard and admin bootstrap seed script"
 - Consumes: `User` model (Task 2), `JwtAuthGuard`/`RolesGuard`/`@Roles`/`@CurrentUser` (Tasks 7-8).
 - Produces: `UsersService.findPaginated(page, limit)`, `UsersService.findById(id)`, `UsersService.update(id, dto)` — used by `attendance`/`location` modules (Tasks 11-15) to look up a user's `officeIds`.
 
-- [ ] **Step 1: Write the failing pagination DTO + service test**
+- [x] **Step 1: Write the failing pagination DTO + service test**
 
 Create `backend/src/common/dto/pagination.dto.ts`:
 ```typescript
@@ -1582,12 +1600,12 @@ describe('UsersService', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- users.service.spec.ts`
 Expected: FAIL — cannot find module `./users.service`.
 
-- [ ] **Step 3: Implement `UsersService`**
+- [x] **Step 3: Implement `UsersService`**
 
 Create `backend/src/users/users.service.ts`:
 ```typescript
@@ -1634,12 +1652,12 @@ export class UsersService {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- users.service.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 5: Add the update DTO and controller**
+- [x] **Step 5: Add the update DTO and controller**
 
 Create `backend/src/users/dto/update-user.dto.ts`:
 ```typescript
@@ -1712,7 +1730,7 @@ import { UsersController } from './users.controller';
 export class UsersModule {}
 ```
 
-- [ ] **Step 6: Write the failing e2e test for role-gated access**
+- [x] **Step 6: Write the failing e2e test for role-gated access**
 
 Create `backend/test/users.e2e-spec.ts`:
 ```typescript
@@ -1757,7 +1775,7 @@ describe('Users (e2e)', () => {
 });
 ```
 
-- [ ] **Step 7: Register the global ValidationPipe in `main.ts`**
+- [x] **Step 7: Register the global ValidationPipe in `main.ts`**
 
 Modify `backend/src/main.ts` to add, before `app.listen(...)`:
 ```typescript
@@ -1766,12 +1784,12 @@ import { ValidationPipe } from '@nestjs/common';
 app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 ```
 
-- [ ] **Step 8: Run the full test suite**
+- [x] **Step 8: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add backend/
