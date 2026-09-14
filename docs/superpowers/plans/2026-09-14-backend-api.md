@@ -2514,7 +2514,7 @@ git commit -m "feat: add clock-out and paginated employee attendance history"
 **Interfaces:**
 - Produces: `AttendanceService.findAllAdmin(filters, page, limit)`, `AttendanceService.summary(from, to): Promise<{ userId: string; totalHours: number }[]>` — an aggregation pipeline, not an in-app loop over records.
 
-- [ ] **Step 1: Write the failing summary aggregation test**
+- [x] **Step 1: Write the failing summary aggregation test**
 
 Append to `backend/src/attendance/attendance.service.spec.ts`:
 ```typescript
@@ -2577,12 +2577,12 @@ describe('AttendanceService.summary', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- attendance.service.spec.ts`
 Expected: FAIL — `service.summary is not a function`.
 
-- [ ] **Step 3: Implement `findAllAdmin` and `summary`**
+- [x] **Step 3: Implement `findAllAdmin` and `summary`**
 
 Add to `backend/src/attendance/attendance.service.ts`, inside the `AttendanceService` class:
 ```typescript
@@ -2641,12 +2641,12 @@ Add to `backend/src/attendance/attendance.service.ts`, inside the `AttendanceSer
   }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- attendance.service.spec.ts`
 Expected: PASS (all tests)
 
-- [ ] **Step 5: Add the admin controller routes**
+- [x] **Step 5: Add the admin controller routes**
 
 Add to `backend/src/attendance/attendance.controller.ts` (add `RolesGuard`, `Roles` imports from Task 8):
 ```typescript
@@ -2677,12 +2677,12 @@ Add to `backend/src/attendance/attendance.controller.ts` (add `RolesGuard`, `Rol
 
 Note the route order: NestJS matches routes in registration order, and `@Get('summary')` must be declared so it doesn't collide with a param route — since there is no `@Get(':id')` on this controller, order doesn't matter here, but keep `summary` and the bare `@Get()` list separate as shown.
 
-- [ ] **Step 6: Run the full test suite**
+- [x] **Step 6: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add backend/
