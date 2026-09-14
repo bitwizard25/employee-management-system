@@ -604,7 +604,7 @@ git commit -m "feat: add Office schema with 2dsphere geospatial index"
 - Consumes: `User` (Task 2, via `userId` reference), `Office` (Task 3, via `officeId` reference).
 - Produces: `AttendanceRecord`, `AttendanceRecordDocument`, `AttendanceRecordSchema` — used by `attendance.service.ts` (Tasks 11-13) and `location.service.ts` (Task 14, to check for an open record).
 
-- [ ] **Step 1: Write the failing schema test**
+- [x] **Step 1: Write the failing schema test**
 
 Create `backend/src/attendance/schemas/attendance-record.schema.spec.ts`:
 ```typescript
@@ -666,12 +666,12 @@ describe('AttendanceRecordSchema', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- attendance-record.schema.spec.ts`
 Expected: FAIL — cannot find module `./attendance-record.schema`.
 
-- [ ] **Step 3: Implement the schema**
+- [x] **Step 3: Implement the schema**
 
 Create `backend/src/attendance/schemas/attendance-record.schema.ts`:
 ```typescript
@@ -714,12 +714,12 @@ AttendanceRecordSchema.index({ userId: 1, status: 1 });
 
 The second index (`{ userId: 1, status: 1 }`) supports the frequent "does this user have an open record" lookup used by clock-in (Task 12) and location ping (Task 14) — it's not in the spec's index table explicitly but is required by the "reject clock-in if already open" and "reject ping if not open" constraints, so it belongs with the schema that defines `status`.
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- attendance-record.schema.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/
