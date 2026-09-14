@@ -36,6 +36,37 @@ otherwise unchanged:
 - Supertest is imported as `import request from 'supertest'` (default
   import) rather than `import * as request from 'supertest'`, for
   reliable interop under `esModuleInterop`.
+- **No Docker/local MongoDB in this environment**, and no such
+  requirement should be assumed for CI either. Every e2e spec that boots
+  `AppModule` uses `mongodb-memory-server` (already a dependency) instead:
+  start a `MongoMemoryServer` in `beforeAll`, stop it in `afterAll`.
+  `AppModule`'s `ConfigModule.forRoot()` sets `ignoreEnvFile:
+  !!process.env.VITEST` so a developer's local `.env` never leaks into
+  tests. Each e2e spec's `beforeAll` must therefore: (1) call
+  `setStaticTestEnv()` from `test/e2e-env.ts` (sets every required env var
+  except `MONGO_URI`), (2) start `MongoMemoryServer` and set
+  `process.env.MONGO_URI` to its URI, (3) **dynamically** `await
+  import('../src/app.module')` — NOT a static top-level `import` —
+  because `@Module()` decorator metadata (including the
+  `ConfigModule.forRoot()`/`validateEnv` call inside it) evaluates at
+  module-import time, which for a static import happens before
+  `beforeAll` ever runs; only a dynamic import inside `beforeAll`, after
+  the env is set, sees the right values. See `test/health.e2e-spec.ts`
+  for the full pattern to copy into every later e2e spec (Tasks 9, 13).
+  Give the `beforeAll` a generous timeout (60000ms) — first-run Mongo
+  binary setup can be slow.
+- Mongoose builds unique/other indexes **asynchronously in the
+  background**, so a schema unit test that relies on an index (e.g. a
+  uniqueness constraint) must `await model.init()` right after getting
+  the model and before any assertions — otherwise the index may not
+  exist yet when the test writes to it. Apply this in every schema spec
+  (Tasks 2-5).
+- `@nestjs/mongoose`'s `@Prop()` decorator cannot infer a Mongoose type
+  from a TypeScript union/string-literal type (e.g. `role: 'employee' |
+  'admin'`) — it needs an explicit `type: String` alongside `enum`, or it
+  throws "Cannot determine a type for the ... field" at startup. Applies
+  to `User.role`, `AttendanceRecord.status`, and every schema's nested
+  `GeoPoint.type: 'Point'` field (Tasks 2-5).
 
 ## Global Constraints
 
@@ -315,7 +346,7 @@ git commit -m "chore: scaffold NestJS backend with config validation and health 
 - Consumes: `MONGO_URI` from `ConfigService` (Task 1).
 - Produces: `User`, `UserDocument`, `UserSchema` — used by `auth` (Task 6), `users` (Task 9), `attendance` (Task 11) to reference `userId`.
 
-- [ ] **Step 1: Write the failing schema test**
+- [x] **Step 1: Write the failing schema test**
 
 Create `backend/src/users/schemas/user.schema.spec.ts`:
 ```typescript
@@ -363,16 +394,16 @@ describe('UserSchema', () => {
 });
 ```
 
-- [ ] **Step 2: Install the in-memory Mongo test dependency**
+- [x] **Step 2: Install the in-memory Mongo test dependency**
 
 Run: `npm install -D mongodb-memory-server`
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `npm run test -- user.schema.spec.ts`
 Expected: FAIL — cannot find module `./user.schema`.
 
-- [ ] **Step 4: Implement the schema**
+- [x] **Step 4: Implement the schema**
 
 Create `backend/src/users/schemas/user.schema.ts`:
 ```typescript
@@ -408,12 +439,12 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 The `unique: true` on `googleId` and `email` in `@Prop` makes Mongoose build the required unique indexes automatically — no separate `schema.index()` calls needed for these two.
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npm run test -- user.schema.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 6: Register MongooseModule.forRoot in AppModule**
+- [x] **Step 6: Register MongooseModule.forRoot in AppModule**
 
 Modify `backend/src/app.module.ts` — add the import:
 ```typescript
@@ -431,12 +462,12 @@ MongooseModule.forRootAsync({
 }),
 ```
 
-- [ ] **Step 7: Run the full test suite to verify nothing broke**
+- [x] **Step 7: Run the full test suite to verify nothing broke**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS (requires a local MongoDB running for the app to boot in the e2e health test — start one with `docker run -d -p 27017:27017 mongo:7` if not already running, or point `MONGO_URI` in `.env` at an existing instance)
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add backend/
