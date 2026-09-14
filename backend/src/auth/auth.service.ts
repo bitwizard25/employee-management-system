@@ -55,4 +55,29 @@ export class AuthService {
 
     return { accessToken, refreshToken, user };
   }
+
+  async refresh(refreshToken: string): Promise<{ accessToken: string }> {
+    let payload: { sub: string };
+    try {
+      payload = this.jwtService.verify(refreshToken, {
+        secret: this.config.get<string>('JWT_REFRESH_SECRET'),
+      });
+    } catch {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+
+    const user = await this.userModel.findOne({ _id: payload.sub });
+    if (!user) {
+      throw new UnauthorizedException('user not found');
+    }
+
+    const accessToken = this.jwtService.sign(
+      { sub: user._id.toString(), role: user.role },
+      {
+        secret: this.config.get<string>('JWT_ACCESS_SECRET'),
+        expiresIn: '15m',
+      },
+    );
+    return { accessToken };
+  }
 }

@@ -82,4 +82,41 @@ describe('AuthService', () => {
       'domain not allowed',
     );
   });
+
+  it('issues a new access token from a valid refresh token', async () => {
+    const jwtService = { sign: vi.fn().mockReturnValue('new-access-token'), verify: vi.fn() };
+    // Rebuild service with a jwtService that supports verify()
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        { provide: getModelToken(User.name), useValue: userModel },
+        { provide: GoogleVerifierService, useValue: googleVerifier },
+        { provide: JwtService, useValue: jwtService },
+        {
+          provide: ConfigService,
+          useValue: {
+            get: vi.fn((key: string) => {
+              const values: Record<string, string> = {
+                ALLOWED_GOOGLE_DOMAIN: 'example.com',
+                JWT_ACCESS_SECRET: 'a'.repeat(32),
+                JWT_REFRESH_SECRET: 'b'.repeat(32),
+              };
+              return values[key];
+            }),
+          },
+        },
+      ],
+    }).compile();
+    const refreshableService = moduleRef.get(AuthService);
+
+    jwtService.verify.mockReturnValue({ sub: 'u1' });
+    userModel.findOne.mockResolvedValue({ _id: 'u1', role: 'employee' });
+
+    const result = await refreshableService.refresh('some-refresh-token');
+
+    expect(jwtService.verify).toHaveBeenCalledWith('some-refresh-token', {
+      secret: 'b'.repeat(32),
+    });
+    expect(result.accessToken).toBe('new-access-token');
+  });
 });
