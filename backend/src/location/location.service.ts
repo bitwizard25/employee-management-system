@@ -25,4 +25,27 @@ export class LocationService {
       timestamp: new Date(dto.timestamp),
     });
   }
+
+  async findLiveLocations(): Promise<
+    { userId: string; lat: number; lng: number; timestamp: Date }[]
+  > {
+    const clockedInUserIds = await this.attendanceModel.distinct('userId', { status: 'open' });
+    if (clockedInUserIds.length === 0) {
+      return [];
+    }
+    return this.pingModel.aggregate([
+      { $match: { userId: { $in: clockedInUserIds } } },
+      { $sort: { userId: 1, timestamp: -1 } },
+      { $group: { _id: '$userId', doc: { $first: '$$ROOT' } } },
+      {
+        $project: {
+          _id: 0,
+          userId: '$_id',
+          lat: { $arrayElemAt: ['$doc.location.coordinates', 1] },
+          lng: { $arrayElemAt: ['$doc.location.coordinates', 0] },
+          timestamp: '$doc.timestamp',
+        },
+      },
+    ]);
+  }
 }
