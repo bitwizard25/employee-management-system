@@ -3070,7 +3070,7 @@ git commit -m "feat: add admin live-location endpoint for the polling-based map"
 **Interfaces:**
 - None — documentation only.
 
-- [ ] **Step 1: Write the README**
+- [x] **Step 1: Write the README**
 
 Create `backend/README.md`:
 ```markdown
@@ -3106,7 +3106,7 @@ See `docs/superpowers/specs/2026-09-14-employee-attendance-system-design.md`
 section 6 for the full endpoint list.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add backend/README.md
