@@ -2355,7 +2355,7 @@ git commit -m "feat: add clock-in with haversine geofence check"
 **Interfaces:**
 - Produces: `AttendanceService.clockOut(userId, dto): Promise<AttendanceRecordDocument>` — throws `NotFoundException` if no open record. `AttendanceService.findMine(userId, page, limit, from?, to?): Promise<PaginatedResult<AttendanceRecordDocument>>`.
 
-- [ ] **Step 1: Write the failing clock-out test**
+- [x] **Step 1: Write the failing clock-out test**
 
 Append to `backend/src/attendance/attendance.service.spec.ts`, as a new `describe` block:
 ```typescript
@@ -2400,12 +2400,12 @@ describe('AttendanceService.clockOut', () => {
 
 Add `import { NotFoundException } from '@nestjs/common';` to the top of the spec file (alongside the existing `BadRequestException, ConflictException` import).
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- attendance.service.spec.ts`
 Expected: FAIL — `service.clockOut is not a function`.
 
-- [ ] **Step 3: Implement `clockOut` and `findMine`**
+- [x] **Step 3: Implement `clockOut` and `findMine`**
 
 Add to `backend/src/attendance/attendance.service.ts`, inside the `AttendanceService` class (and add `NotFoundException` to the existing `@nestjs/common` import):
 ```typescript
@@ -2453,12 +2453,12 @@ Add to `backend/src/attendance/attendance.service.ts`, inside the `AttendanceSer
 
 Add the import for `ClockOutDto` at the top: `import { ClockOutDto } from './dto/clock-out.dto';`
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- attendance.service.spec.ts`
 Expected: PASS (all tests across both `describe` blocks)
 
-- [ ] **Step 5: Add the DTO and controller routes**
+- [x] **Step 5: Add the DTO and controller routes**
 
 Create `backend/src/attendance/dto/clock-out.dto.ts`:
 ```typescript
@@ -2490,12 +2490,12 @@ Add to `backend/src/attendance/attendance.controller.ts` (with `Get`, `Query` ad
   }
 ```
 
-- [ ] **Step 6: Run the full test suite**
+- [x] **Step 6: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add backend/
