@@ -861,7 +861,7 @@ git commit -m "feat: add LocationPing schema with 60-day TTL index"
 - Consumes: `User`/`UserSchema` (Task 2), `ConfigService` (Task 1) for `GOOGLE_CLIENT_ID`, `ALLOWED_GOOGLE_DOMAIN`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`.
 - Produces: `AuthService.loginWithGoogle(idToken: string): Promise<{ accessToken: string; refreshToken: string; user: UserDocument }>`, `POST /auth/google` route. `GoogleVerifierService.verify(idToken: string): Promise<{ email: string; name: string; googleId: string }>` — used directly by `AuthService` and mockable in tests.
 
-- [ ] **Step 1: Write the failing service test**
+- [x] **Step 1: Write the failing service test**
 
 Create `backend/src/auth/auth.service.spec.ts`:
 ```typescript
@@ -952,12 +952,12 @@ describe('AuthService', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- auth.service.spec.ts`
 Expected: FAIL — cannot find module `./auth.service`.
 
-- [ ] **Step 3: Implement `GoogleVerifierService`**
+- [x] **Step 3: Implement `GoogleVerifierService`**
 
 Create `backend/src/auth/google-verifier.service.ts`:
 ```typescript
@@ -997,7 +997,7 @@ export class GoogleVerifierService {
 }
 ```
 
-- [ ] **Step 4: Implement `AuthService`**
+- [x] **Step 4: Implement `AuthService`**
 
 Create `backend/src/auth/auth.service.ts`:
 ```typescript
@@ -1061,12 +1061,12 @@ export class AuthService {
 }
 ```
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npm run test -- auth.service.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 6: Create the DTO, controller, and module**
+- [x] **Step 6: Create the DTO, controller, and module**
 
 Create `backend/src/auth/dto/google-login.dto.ts`:
 ```typescript
@@ -1136,12 +1136,12 @@ export class AuthModule {}
 
 Register `AuthModule` and `UsersModule` in `backend/src/app.module.ts`'s `imports: []` array (alongside `ConfigModule` and `MongooseModule` from Task 2).
 
-- [ ] **Step 7: Run the full test suite**
+- [x] **Step 7: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add backend/
