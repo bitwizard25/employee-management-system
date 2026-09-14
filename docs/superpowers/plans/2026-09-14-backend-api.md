@@ -10,6 +10,33 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-14-employee-attendance-system-design.md`
 
+## Implementation Notes (added during execution)
+
+The NestJS CLI version available at execution time (Nest 12, TypeScript ^6)
+scaffolds differently than assumed above. These substitutions apply to
+every task below; the plan's file paths, commands, and business logic are
+otherwise unchanged:
+
+- **Vitest instead of Jest** (current Nest CLI default). `npm run test`
+  and `npm run test:e2e` are unchanged (already wired to Vitest by the
+  scaffold), as is the `describe`/`it`/`expect` global API. Only mocking
+  syntax differs: use `vi.fn()` instead of `jest.fn()`, and the `Mock`
+  type from `'vitest'` instead of `jest.Mock`. `vi`/`describe`/`it`/
+  `expect` are globals (`vitest/globals` in `tsconfig.json`), same as Jest.
+- **CommonJS module output**, not the scaffold's NodeNext ESM default —
+  `tsconfig.json` uses `"module": "commonjs"`, `"moduleResolution":
+  "bundler"` (avoids both the deprecated `node10` resolution and NodeNext's
+  requirement that every relative import end in `.js`). `package.json` has
+  no `"type": "module"`. This lets every import below be written exactly
+  as `from './foo'`, matching the plan's code.
+- **`@nestjs/throttler`** has not yet published a peer-dependency range
+  covering Nest 12 (a temporary lag right after Nest 12's release, not an
+  API break) — the project's `.npmrc` sets `legacy-peer-deps=true` so
+  `npm install` works without repeating the flag.
+- Supertest is imported as `import request from 'supertest'` (default
+  import) rather than `import * as request from 'supertest'`, for
+  reliable interop under `esModuleInterop`.
+
 ## Global Constraints
 
 - TypeScript strict mode in `backend`.
@@ -95,7 +122,7 @@ Each domain module (`users`, `offices`, `attendance`, `location`, `auth`) owns i
 **Interfaces:**
 - Produces: `AppModule` (root module later tasks import into), a running Nest app on `PORT` env var, `GET /health` returning `{ status: 'ok' }`.
 
-- [ ] **Step 1: Scaffold the NestJS project**
+- [x] **Step 1: Scaffold the NestJS project**
 
 Run:
 ```bash
@@ -104,7 +131,7 @@ npx @nestjs/cli new . --package-manager npm --skip-git --language typescript
 ```
 When prompted, accept defaults. This creates `package.json`, `tsconfig.json`, `nest-cli.json`, `src/main.ts`, `src/app.module.ts`, `src/app.controller.ts`, `src/app.service.ts`, and a starter `test/app.e2e-spec.ts`.
 
-- [ ] **Step 2: Install additional dependencies**
+- [x] **Step 2: Install additional dependencies**
 
 Run:
 ```bash
@@ -112,7 +139,7 @@ npm install @nestjs/mongoose mongoose @nestjs/jwt @nestjs/passport passport pass
 npm install -D @types/passport-jwt supertest
 ```
 
-- [ ] **Step 3: Enable TypeScript strict mode**
+- [x] **Step 3: Enable TypeScript strict mode**
 
 Edit `backend/tsconfig.json`, set inside `compilerOptions`:
 ```json
@@ -125,7 +152,7 @@ Edit `backend/tsconfig.json`, set inside `compilerOptions`:
 }
 ```
 
-- [ ] **Step 4: Write environment validation**
+- [x] **Step 4: Write environment validation**
 
 Create `backend/src/config/env.validation.ts`:
 ```typescript
@@ -172,7 +199,7 @@ export function validateEnv(config: Record<string, unknown>) {
 }
 ```
 
-- [ ] **Step 5: Create `.env.example`**
+- [x] **Step 5: Create `.env.example`**
 
 Create `backend/.env.example`:
 ```
@@ -187,7 +214,7 @@ ADMIN_EMAILS=you@yourcompany.com
 
 Copy it to a real `.env` for local dev (`cp .env.example .env`) and fill in real values — `.env` must already be in `.gitignore` (Nest's default `.gitignore` includes it; verify with `cat backend/.gitignore`).
 
-- [ ] **Step 6: Wire ConfigModule with validation into AppModule**
+- [x] **Step 6: Wire ConfigModule with validation into AppModule**
 
 Replace `backend/src/app.module.ts`:
 ```typescript
@@ -208,7 +235,7 @@ import { validateEnv } from './config/env.validation';
 export class AppModule {}
 ```
 
-- [ ] **Step 7: Write the failing health check test**
+- [x] **Step 7: Write the failing health check test**
 
 Create `backend/test/health.e2e-spec.ts` (delete the generated `test/app.e2e-spec.ts` first since it tests a route we're replacing):
 ```typescript
@@ -241,12 +268,12 @@ describe('Health (e2e)', () => {
 });
 ```
 
-- [ ] **Step 8: Run the test to verify it fails**
+- [x] **Step 8: Run the test to verify it fails**
 
 Run: `npm run test:e2e -- health.e2e-spec.ts`
 Expected: FAIL — `GET /health` returns 404 (no such route yet).
 
-- [ ] **Step 9: Implement the health endpoint**
+- [x] **Step 9: Implement the health endpoint**
 
 Replace `backend/src/app.controller.ts`:
 ```typescript
@@ -263,12 +290,12 @@ export class AppController {
 
 Delete `backend/src/app.service.ts` if the generated `AppController` no longer depends on it (it doesn't in the version above).
 
-- [ ] **Step 10: Run the test to verify it passes**
+- [x] **Step 10: Run the test to verify it passes**
 
 Run: `npm run test:e2e -- health.e2e-spec.ts`
 Expected: PASS
 
-- [ ] **Step 11: Commit**
+- [x] **Step 11: Commit**
 
 ```bash
 git add backend/
