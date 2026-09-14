@@ -6,6 +6,7 @@ import { validateEnv } from './config/env.validation';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { OfficesModule } from './offices/offices.module';
+import { AttendanceModule } from './attendance/attendance.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { OfficesModule } from './offices/offices.module';
     AuthModule,
     UsersModule,
     OfficesModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
 })
