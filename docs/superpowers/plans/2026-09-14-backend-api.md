@@ -2936,7 +2936,7 @@ git commit -m "feat: add location ping endpoint guarded by open-attendance check
 **Interfaces:**
 - Produces: `LocationService.findLiveLocations(): Promise<{ userId: string; lat: number; lng: number; timestamp: Date }[]>` — one row per user who currently has an open `AttendanceRecord`, with their single latest `LocationPing`.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Append to `backend/src/location/location.service.spec.ts`:
 ```typescript
@@ -2995,12 +2995,12 @@ describe('LocationService.findLiveLocations', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- location.service.spec.ts`
 Expected: FAIL — `service.findLiveLocations is not a function`.
 
-- [ ] **Step 3: Implement `findLiveLocations`**
+- [x] **Step 3: Implement `findLiveLocations`**
 
 Add to `backend/src/location/location.service.ts`, inside the `LocationService` class:
 ```typescript
@@ -3028,12 +3028,12 @@ Add to `backend/src/location/location.service.ts`, inside the `LocationService` 
   }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- location.service.spec.ts`
 Expected: PASS (all tests)
 
-- [ ] **Step 5: Add the admin controller route**
+- [x] **Step 5: Add the admin controller route**
 
 Add to `backend/src/location/location.controller.ts` (add `Get`, `UseGuards` already imported; add `RolesGuard`, `Roles` imports):
 ```typescript
@@ -3048,12 +3048,12 @@ import { Roles } from '../common/decorators/roles.decorator';
   }
 ```
 
-- [ ] **Step 6: Run the full test suite**
+- [x] **Step 6: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add backend/
