@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { validateEnv } from './config/env.validation';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { OfficesModule } from './offices/offices.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { LocationModule } from './location/location.module';
 
 @Module({
   imports: [
@@ -25,11 +28,14 @@ import { AttendanceModule } from './attendance/attendance.module';
         uri: config.get<string>('MONGO_URI'),
       }),
     }),
+    ThrottlerModule.forRoot([{ ttl: 60000, limit: 20 }]),
     AuthModule,
     UsersModule,
     OfficesModule,
     AttendanceModule,
+    LocationModule,
   ],
   controllers: [AppController],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

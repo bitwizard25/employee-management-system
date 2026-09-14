@@ -1,4 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { GoogleLoginDto } from './dto/google-login.dto';
 import { RefreshDto } from './dto/refresh.dto';
@@ -8,6 +9,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('google')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   async google(@Body() dto: GoogleLoginDto) {
     const { accessToken, refreshToken, user } = await this.authService.loginWithGoogle(
       dto.idToken,
