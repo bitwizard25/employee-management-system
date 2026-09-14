@@ -1812,7 +1812,7 @@ git commit -m "feat: add users module with paginated list, me, and admin update"
 - Consumes: `Office` model (Task 3), guards/decorators (Tasks 7-8), `PaginationDto` (Task 9).
 - Produces: `OfficesService.create/findPaginated/update/remove` — used by `attendance.service.ts` (Task 11) to look up an office's `location`/`radiusMeters` for the geofence check.
 
-- [ ] **Step 1: Write the failing service test**
+- [x] **Step 1: Write the failing service test**
 
 Create `backend/src/offices/offices.service.spec.ts`:
 ```typescript
@@ -1862,12 +1862,12 @@ describe('OfficesService', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- offices.service.spec.ts`
 Expected: FAIL — cannot find module `./offices.service`.
 
-- [ ] **Step 3: Implement the DTOs and service**
+- [x] **Step 3: Implement the DTOs and service**
 
 Create `backend/src/offices/dto/create-office.dto.ts`:
 ```typescript
@@ -1959,12 +1959,12 @@ export class OfficesService {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- offices.service.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 5: Add the controller and module**
+- [x] **Step 5: Add the controller and module**
 
 Create `backend/src/offices/offices.controller.ts`:
 ```typescript
@@ -2039,12 +2039,12 @@ export class OfficesModule {}
 
 Register `OfficesModule` in `backend/src/app.module.ts`'s `imports: []`.
 
-- [ ] **Step 6: Run the full test suite**
+- [x] **Step 6: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add backend/
