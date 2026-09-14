@@ -2068,7 +2068,7 @@ git commit -m "feat: add offices module with admin-only CRUD"
 - Consumes: `AttendanceRecord` model (Task 4), `OfficesService` (Task 10, to fetch office location/radius).
 - Produces: `haversineDistanceMeters(a, b): number`, `AttendanceService.clockIn(userId, dto): Promise<AttendanceRecordDocument>` — throws `ConflictException` if already open, throws `BadRequestException` if outside geofence. `POST /attendance/clock-in`.
 
-- [ ] **Step 1: Write the failing haversine test**
+- [x] **Step 1: Write the failing haversine test**
 
 Create `backend/src/attendance/geo.util.spec.ts`:
 ```typescript
@@ -2089,12 +2089,12 @@ describe('haversineDistanceMeters', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- geo.util.spec.ts`
 Expected: FAIL — cannot find module `./geo.util`.
 
-- [ ] **Step 3: Implement the haversine util**
+- [x] **Step 3: Implement the haversine util**
 
 Create `backend/src/attendance/geo.util.ts`:
 ```typescript
@@ -2119,12 +2119,12 @@ export function haversineDistanceMeters(a: LatLng, b: LatLng): number {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- geo.util.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 5: Write the failing clock-in service test**
+- [x] **Step 5: Write the failing clock-in service test**
 
 Create `backend/src/attendance/attendance.service.spec.ts`:
 ```typescript
@@ -2193,12 +2193,12 @@ describe('AttendanceService.clockIn', () => {
 });
 ```
 
-- [ ] **Step 6: Run the test to verify it fails**
+- [x] **Step 6: Run the test to verify it fails**
 
 Run: `npm run test -- attendance.service.spec.ts`
 Expected: FAIL — cannot find module `./attendance.service`.
 
-- [ ] **Step 7: Implement `AttendanceService.clockIn` (and the constructor/imports it needs)**
+- [x] **Step 7: Implement `AttendanceService.clockIn` (and the constructor/imports it needs)**
 
 Create `backend/src/attendance/attendance.service.ts`:
 ```typescript
@@ -2246,7 +2246,7 @@ export class AttendanceService {
 }
 ```
 
-- [ ] **Step 8: Add `OfficesService.findOne` (needed by the call above)**
+- [x] **Step 8: Add `OfficesService.findOne` (needed by the call above)**
 
 Add to `backend/src/offices/offices.service.ts`, inside the `OfficesService` class:
 ```typescript
@@ -2257,12 +2257,12 @@ Add to `backend/src/offices/offices.service.ts`, inside the `OfficesService` cla
   }
 ```
 
-- [ ] **Step 9: Run the test to verify it passes**
+- [x] **Step 9: Run the test to verify it passes**
 
 Run: `npm run test -- attendance.service.spec.ts`
 Expected: PASS (all three tests)
 
-- [ ] **Step 10: Add the DTO, controller, and module**
+- [x] **Step 10: Add the DTO, controller, and module**
 
 Create `backend/src/attendance/dto/clock-in.dto.ts`:
 ```typescript
@@ -2330,12 +2330,12 @@ export class AttendanceModule {}
 
 Register `AttendanceModule` in `backend/src/app.module.ts`'s `imports: []`.
 
-- [ ] **Step 11: Run the full test suite**
+- [x] **Step 11: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 12: Commit**
+- [x] **Step 12: Commit**
 
 ```bash
 git add backend/
