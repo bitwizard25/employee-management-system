@@ -79,6 +79,18 @@ otherwise unchanged:
   the bare `PassportModule`), and exports it — so no other module needs
   to import `PassportModule` itself, only `AuthModule` needs to be
   imported once (already done, in `AppModule`).
+- **`npm run test`/`test:e2e` (Vitest) do not type-check** — they
+  transpile only, so a real type error can sit undetected for several
+  tasks until `npm run build` (which runs full `tsc` via `nest build`)
+  is run. Confirmed case: `JwtStrategy`'s `secretOrKey:
+  config.get<string>('JWT_ACCESS_SECRET')` type-checks as `string |
+  undefined`, which passport-jwt's `secretOrKey` option rejects — fixed
+  by using `config.getOrThrow<string>(...)` instead of `config.get<string>(...)`
+  wherever a required env var feeds something that needs a definite
+  `string` (not needed for `JwtService.sign()`'s `secret` option, which
+  already accepts `undefined`). **Run `npm run build` periodically**
+  (e.g. every few tasks), not just at the very end, to catch this class
+  of bug close to where it was introduced.
 - `@nestjs/mongoose`'s `@Prop()` decorator cannot infer a Mongoose type
   from a TypeScript union/string-literal type (e.g. `role: 'employee' |
   'admin'`) — it needs an explicit `type: String` alongside `enum`, or it
@@ -2706,7 +2718,7 @@ git commit -m "feat: add admin attendance list and hours-summary aggregation"
 - Consumes: `LocationPing` model (Task 5), `AttendanceRecord` model (Task 4, to check for an open record — inject the model directly, not `AttendanceService`, to avoid a circular module dependency).
 - Produces: `LocationService.recordPing(userId, dto): Promise<LocationPingDocument>` — throws `ConflictException` (409) if the user has no open attendance record.
 
-- [ ] **Step 1: Write the failing service test**
+- [x] **Step 1: Write the failing service test**
 
 Create `backend/src/location/location.service.spec.ts`:
 ```typescript
@@ -2759,12 +2771,12 @@ describe('LocationService.recordPing', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- location.service.spec.ts`
 Expected: FAIL — cannot find module `./location.service`.
 
-- [ ] **Step 3: Implement `LocationService`**
+- [x] **Step 3: Implement `LocationService`**
 
 Create `backend/src/location/location.service.ts`:
 ```typescript
@@ -2798,12 +2810,12 @@ export class LocationService {
 }
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- location.service.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 5: Add the DTO, controller, and module with rate limiting**
+- [x] **Step 5: Add the DTO, controller, and module with rate limiting**
 
 Create `backend/src/location/dto/ping.dto.ts`:
 ```typescript
@@ -2873,7 +2885,7 @@ import { LocationController } from './location.controller';
 export class LocationModule {}
 ```
 
-- [ ] **Step 6: Register global ThrottlerModule and per-route override on `/auth/google`**
+- [x] **Step 6: Register global ThrottlerModule and per-route override on `/auth/google`**
 
 Modify `backend/src/app.module.ts` — add to `imports: []`:
 ```typescript
@@ -2900,12 +2912,12 @@ import { Throttle } from '@nestjs/throttler';
 
 Register `LocationModule` in `backend/src/app.module.ts`'s `imports: []`.
 
-- [ ] **Step 7: Run the full test suite**
+- [x] **Step 7: Run the full test suite**
 
 Run: `npm run test && npm run test:e2e`
 Expected: PASS
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add backend/
