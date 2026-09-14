@@ -1,9 +1,10 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AttendanceRecord, AttendanceRecordDocument } from './schemas/attendance-record.schema';
 import { OfficesService } from '../offices/offices.service';
 import { ClockInDto } from './dto/clock-in.dto';
+import { ClockOutDto } from './dto/clock-out.dto';
 import { haversineDistanceMeters } from './geo.util';
 
 @Injectable()
@@ -38,5 +39,46 @@ export class AttendanceService {
       clockIn: { time: new Date(), location: { lat: dto.lat, lng: dto.lng } },
       status: 'open',
     });
+  }
+
+  async clockOut(userId: string, dto: ClockOutDto): Promise<AttendanceRecordDocument> {
+    const updated = await this.attendanceModel.findOneAndUpdate(
+      { userId, status: 'open' },
+      {
+        status: 'closed',
+        clockOut: { time: new Date(), location: { lat: dto.lat, lng: dto.lng } },
+      },
+      { new: true },
+    );
+    if (!updated) {
+      throw new NotFoundException('No open attendance record to clock out of');
+    }
+    return updated;
+  }
+
+  async findMine(
+    userId: string,
+    page: number,
+    limit: number,
+    from?: Date,
+    to?: Date,
+  ): Promise<{ items: AttendanceRecordDocument[]; total: number; page: number; limit: number }> {
+    const filter: Record<string, unknown> = { userId };
+    if (from || to) {
+      filter['clockIn.time'] = {
+        ...(from && { $gte: from }),
+        ...(to && { $lte: to }),
+      };
+    }
+    const [items, total] = await Promise.all([
+      this.attendanceModel
+        .find(filter)
+        .sort({ 'clockIn.time': -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .exec(),
+      this.attendanceModel.countDocuments(filter),
+    ]);
+    return { items, total, page, limit };
   }
 }

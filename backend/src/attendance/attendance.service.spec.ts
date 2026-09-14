@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/mongoose';
-import { BadRequestException, ConflictException } from '@nestjs/common';
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { AttendanceRecord } from './schemas/attendance-record.schema';
 import { OfficesService } from '../offices/offices.service';
@@ -59,5 +59,43 @@ describe('AttendanceService.clockIn', () => {
       expect.objectContaining({ userId: 'u1', officeId: 'o1', status: 'open' }),
     );
     expect(result.status).toBe('open');
+  });
+});
+
+describe('AttendanceService.clockOut', () => {
+  let service: AttendanceService;
+  let model: any;
+
+  beforeEach(async () => {
+    model = { findOne: vi.fn(), findOneAndUpdate: vi.fn() };
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        AttendanceService,
+        { provide: getModelToken(AttendanceRecord.name), useValue: model },
+        { provide: OfficesService, useValue: { findOne: vi.fn() } },
+      ],
+    }).compile();
+    service = moduleRef.get(AttendanceService);
+  });
+
+  it('throws NotFoundException when there is no open record', async () => {
+    model.findOneAndUpdate.mockResolvedValue(null);
+    await expect(service.clockOut('u1', { lat: 12.97, lng: 77.59 })).rejects.toThrow(
+      NotFoundException,
+    );
+  });
+
+  it('closes the open record with clock-out time and location', async () => {
+    model.findOneAndUpdate.mockResolvedValue({ _id: 'r1', status: 'closed' });
+    const result = await service.clockOut('u1', { lat: 12.97, lng: 77.59 });
+    expect(model.findOneAndUpdate).toHaveBeenCalledWith(
+      { userId: 'u1', status: 'open' },
+      expect.objectContaining({
+        status: 'closed',
+        clockOut: expect.objectContaining({ location: { lat: 12.97, lng: 77.59 } }),
+      }),
+      { new: true },
+    );
+    expect(result.status).toBe('closed');
   });
 });
