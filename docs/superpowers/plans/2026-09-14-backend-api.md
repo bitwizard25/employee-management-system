@@ -738,7 +738,7 @@ git commit -m "feat: add AttendanceRecord schema with userId+time and userId+sta
 - Consumes: `User` (Task 2, via `userId` reference).
 - Produces: `LocationPing`, `LocationPingDocument`, `LocationPingSchema` — used by `location.service.ts` (Tasks 14-15).
 
-- [ ] **Step 1: Write the failing schema test**
+- [x] **Step 1: Write the failing schema test**
 
 Create `backend/src/location/schemas/location-ping.schema.spec.ts`:
 ```typescript
@@ -793,12 +793,12 @@ describe('LocationPingSchema', () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npm run test -- location-ping.schema.spec.ts`
 Expected: FAIL — cannot find module `./location-ping.schema`.
 
-- [ ] **Step 3: Implement the schema**
+- [x] **Step 3: Implement the schema**
 
 Create `backend/src/location/schemas/location-ping.schema.ts`:
 ```typescript
@@ -832,12 +832,12 @@ LocationPingSchema.index({ userId: 1, timestamp: -1 });
 LocationPingSchema.index({ timestamp: 1 }, { expireAfterSeconds: 60 * 24 * 60 * 60 });
 ```
 
-- [ ] **Step 4: Run the test to verify it passes**
+- [x] **Step 4: Run the test to verify it passes**
 
 Run: `npm run test -- location-ping.schema.spec.ts`
 Expected: PASS (both tests)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add backend/
